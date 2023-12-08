@@ -518,7 +518,47 @@ static inline uint8_t getColor(struct Cell *c)
 				 * similar hue (but of course, as this is a hash function, totally
 				 * different genomes can also have a similar or even the same hue).
 				 * Therefore the difference in hue should to some extent reflect the grade
-				 * of "kinship" of two cells.
+				 * of "kinship" of two cells.#define GENOME_SIZE 4096
+
+void packGenome(struct Cell cell, const char* filename) {
+	FILE* file = fopen(filename, "r");
+	if (file == NULL) {
+		printf("Failed to open file: %s\n", filename);
+		return;
+	}
+
+	char genomeData[GENOME_SIZE];
+	if (fgets(genomeData, GENOME_SIZE, file) == NULL) {
+		printf("Failed to read genome data from file\n");
+		fclose(file);
+		return;
+	}
+
+	fclose(file);
+
+	int genomeIndex = 0;
+	int bitIndex = 0;
+	uintptr_t packedValue = 0;
+
+	for (int i = 0; genomeData[i] != '\0'; i++) {
+		char character = genomeData[i];
+		if (character == '0' || character == '1') {
+			packedValue |= (character - '0') << bitIndex;
+			bitIndex++;
+
+			if (bitIndex == sizeof(uintptr_t) * 8) {
+				cell.genome[genomeIndex] = packedValue;
+				genomeIndex++;
+				bitIndex = 0;
+				packedValue = 0;
+			}
+		}
+	}
+
+	if (bitIndex > 0) {
+		cell.genome[genomeIndex] = packedValue;
+	}
+}
 				 */
 				if (c->generation > 1) {
 					sum = 0;
