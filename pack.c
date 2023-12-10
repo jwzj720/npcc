@@ -96,15 +96,12 @@ static struct Cell readCell(char *genomeData) {
     for (int i = 0; genomeData[i] != '\0'; i++) {
         char character = genomeData[i];
         //printf("%c", character);
-        if (character == '0' || character == '1') {
-            printf("packedValue: %lu\n", packedValue);  
+        if (character == '0' || character == '1') {  
             packedValue |= (character - '0') << shiftPtr;
             shiftPtr += 4;
 
             if (shiftPtr >= SYSWORD_BITS) {
-                if (wordPtr >= sizeof(cell.genome) / sizeof(cell.genome[0])) {
-                    break; // Prevents memory error
-                }
+                printf("packedValue: %lu\n", packedValue);
                 cell.genome[wordPtr] = packedValue;
                 wordPtr++;
                 shiftPtr = 0;
