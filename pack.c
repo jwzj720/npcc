@@ -97,6 +97,7 @@ static struct Cell readCell(char *genomeData) {
         char character = genomeData[i];
         //printf("%c", character);
         if (character == '0' || character == '1') {
+            printf("packedValue: %lu\n", packedValue);  
             packedValue |= (character - '0') << shiftPtr;
             shiftPtr += 4;
 
