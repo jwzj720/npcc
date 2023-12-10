@@ -109,22 +109,24 @@ static struct Cell readCell(char *genomeData) {
 
     for (int i = 0; genomeData[i] != '\0'; i++) {
         char character = genomeData[i];
-        if (character >= '0' && character <= 'f') {
-            uintptr_t value = character <= '9' ? character - '0' : character - 'a' + 10;
-            packedValue |= value << shiftPtr;
-            shiftPtr += 4;
+        if (character >= '0' && character <= 'f') { // checks if the character is valid hex character
+            uintptr_t value = character <= '9' ? character - '0' : character - 'a' + 10; // this is a line to convert hex to decimal value. 
+            // if the character is between 0 and 9, use character - '0' to get the decimal value.
+            // else if the character is not between 0 and 9, use character - 'a' + 10 to get the decimal value
+            packedValue |= value << shiftPtr; // shift the value to the left by shiftPtr and OR it with packedValue
+            shiftPtr += 4; // increment shiftPtr by 4
 
-            if (shiftPtr >= SYSWORD_BITS) {
+            if (shiftPtr >= SYSWORD_BITS) { //if shiftPtr is greater that SYSWORD_BITS, then we have a full word and need to store it in the genome
                 cell.genome[wordPtr] = packedValue;
-                wordPtr++;
-                shiftPtr = 0;
-                packedValue = 0;
+                wordPtr++; // increment wordPtr so we know where to put it in the array
+                shiftPtr = 0; //reset shiftPtr to 0
+                packedValue = 0; //reset packedValue to 0
             }
         }
     }
 
     if (shiftPtr > 0) {
-        cell.genome[wordPtr] = packedValue;
+        cell.genome[wordPtr] = packedValue; // store the last word (overflow < SYSWORD_BITS)
     }
     return cell;
 }
