@@ -114,7 +114,7 @@ static struct Cell readCell(char *genomeData) {
             // if the character is between 0 and 9, use character - '0' to get the decimal value.
             // else if the character is not between 0 and 9, use character - 'a' + 10 to get the decimal value
             packedValue |= value << shiftPtr; // shift the value to the left by shiftPtr and OR it with packedValue
-            shiftPtr += 4; // increment shiftPtr by 4
+            shiftPtr += 4; // increcheckment shiftPtr by 4
 
             if (shiftPtr >= SYSWORD_BITS) { //if shiftPtr is greater that SYSWORD_BITS, then we have a full word and need to store it in the genome
                 cell.genome[wordPtr] = packedValue;
