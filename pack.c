@@ -84,37 +84,6 @@ void bin(unsigned n)
 static struct Cell pond[POND_SIZE_X][POND_SIZE_Y];
 #define GENOME_SIZE 1025
 
-
-static struct Cell readCell(char *genomeData) {
-    uintptr_t wordPtr = 0;
-    uintptr_t shiftPtr = 0;
-    uintptr_t packedValue = 0;
-    struct Cell cell;
-
-    //printf("Size of genomeData: %zu\n", strlen(genomeData));
-    
-    for (int i = 0; genomeData[i] != '\0'; i++) {
-        char character = genomeData[i];
-        //printf("%c", character);
-        if (character == '0' || character == '1') {  
-            packedValue |= (character - '0') << shiftPtr;
-            shiftPtr += 4;
-
-            if (shiftPtr >= SYSWORD_BITS) {
-                printf("packedValue: %x\n", packedValue);
-                cell.genome[wordPtr] = packedValue;
-                wordPtr++;
-                shiftPtr = 0;
-                packedValue = 0;
-            }
-        }
-    }
-
-    if (shiftPtr > 0) {
-        cell.genome[wordPtr] = packedValue;
-    }
-    return cell;
-}
 void printUnpackedCell(struct Cell cell) {
     uintptr_t wordPtr = 0;
     uintptr_t shiftPtr = 0;
@@ -132,6 +101,34 @@ void printUnpackedCell(struct Cell cell) {
     }
     printf("\n");
 }
+static struct Cell readCell(char *genomeData) {
+    uintptr_t wordPtr = 0;
+    uintptr_t shiftPtr = 0;
+    uintptr_t packedValue = 0;
+    struct Cell cell;
+
+    for (int i = 0; genomeData[i] != '\0'; i++) {
+        char character = genomeData[i];
+        if (character >= '0' && character <= 'f') {
+            uintptr_t value = character <= '9' ? character - '0' : character - 'a' + 10;
+            packedValue |= value << shiftPtr;
+            shiftPtr += 4;
+
+            if (shiftPtr >= SYSWORD_BITS) {
+                cell.genome[wordPtr] = packedValue;
+                wordPtr++;
+                shiftPtr = 0;
+                packedValue = 0;
+            }
+        }
+    }
+
+    if (shiftPtr > 0) {
+        cell.genome[wordPtr] = packedValue;
+    }
+    return cell;
+}
+
 static void writeCell(FILE *file, struct Cell *cell) {
     uintptr_t wordPtr,shiftPtr,inst,stopCount,i;
 		wordPtr = 0;
