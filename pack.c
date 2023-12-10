@@ -101,7 +101,7 @@ static struct Cell readCell(char *genomeData) {
             shiftPtr += 4;
 
             if (shiftPtr >= SYSWORD_BITS) {
-                printf("packedValue: %lu\n", packedValue);
+                printf("packedValue: %x\n", packedValue);
                 cell.genome[wordPtr] = packedValue;
                 wordPtr++;
                 shiftPtr = 0;
