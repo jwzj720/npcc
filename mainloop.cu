@@ -241,7 +241,7 @@ static void doReport(struct Cell *pond, struct statCounters *statCounter, const 
 		((uint8_t *)&statCounter)[x] = (uint8_t)0;
 }
 
-__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter, int clock) 
+__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter, int *clock) 
 {
     //const uintptr_t threadNo = (uintptr_t)targ;
     uintptr_t x,y,i;
@@ -265,8 +265,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     uintptr_t rand;
     int exitNow = 0;
     while (!exitNow) {
-        clock++;
-    if (!(clock % INFLOW_FREQUENCY)) {
+        *clock++;
+    if (!(*clock % INFLOW_FREQUENCY)) {
         getRandomRollback(1, &x, buffer, in, prngState);
         x = x % POND_SIZE_X;
         getRandomRollback(1, &y, buffer, in, prngState);
@@ -413,7 +413,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         }
     }
     }
-    if ((!(clock % REPORT_FREQUENCY)) || clock == 100000)
+    if ((!(*clock % REPORT_FREQUENCY)) || *clock == 100000)
     {
         exitNow = 1;
     }
@@ -438,7 +438,7 @@ int main() {
     int *d_in;
     uintptr_t *d_last_random_number;
     uint64_t *d_prngState;
-    int clock;
+    int *clock;
     cudaMalloc(&clock, sizeof(int));
     // Allocate memory on the GPU for each variable
     cudaMalloc(&d_buffer, BUFFER_SIZE * sizeof(uintptr_t));
