@@ -121,9 +121,6 @@ struct statCounters {
 	uintptr_t viableCellShares;
 };
 
-/* This is used to generate unique cell IDs */
-__managed__ static volatile uint64_t cellIdCounter = 0;
-
 __host__ __device__ static inline void getRandomPre(int rollback, uintptr_t *ret, uint64_t *prngState)
 {
     // https://en.wikipedia.org/wiki/Xorshift#xorshift.2B
@@ -241,7 +238,7 @@ static void doReport(struct Cell *pond, struct statCounters *statCounter, const 
 		((uint8_t *)&statCounter)[x] = (uint8_t)0;
 }
 
-__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter) 
+__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter, uint64_t *cellIdCounter) 
 {
     //const uintptr_t threadNo = (uintptr_t)targ;
     uintptr_t x,y,i;
@@ -267,7 +264,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     int exitNow = 0;
     while (!exitNow) {
         clock++;
-        if (clock == 200000000)
+        if (clock == 10000)
             {
                 exitNow = 1;
             }
@@ -440,6 +437,18 @@ int main() {
     int *d_in;
     uintptr_t *d_last_random_number;
     uint64_t *d_prngState;
+    /* This is used to generate unique cell IDs */
+    uint64_t *cellIdCounter;
+
+    // Allocate memory on the GPU for cellIdCounter
+    cudaMalloc(&cellIdCounter, sizeof(uint64_t));
+
+    // Set its value to 0
+    cudaMemset(cellIdCounter, 0, sizeof(uint64_t));
+
+    // Copy the value from the host to the device
+    uint64_t h_cellIdCounter = 0;
+    cudaMemcpy(cellIdCounter, &h_cellIdCounter, sizeof(uint64_t), cudaMemcpyHostToDevice);
 
     // Allocate memory on the GPU for each variable
     cudaMalloc(&d_buffer, BUFFER_SIZE * sizeof(uintptr_t));
@@ -477,7 +486,7 @@ int main() {
 
    // Call the kernel function
     for (uint64_t n = 0; n < 1; n++){
-        run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters);
+        run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter);
         cudaDeviceSynchronize(); 
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
