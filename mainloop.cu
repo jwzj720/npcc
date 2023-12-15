@@ -446,14 +446,22 @@ int main() {
     cudaMalloc(&d_last_random_number, sizeof(uintptr_t));
     cudaMalloc(&d_prngState, 2 * sizeof(uint64_t));
 
+    // Allocate memory for buffer and prngState on the host
+    uintptr_t *h_buffer = (uintptr_t *)malloc(BUFFER_SIZE * sizeof(uintptr_t));
+    uint64_t h_prngState[2] = {0, (uint64_t)rand()};
+
+    // Call precalculate_random_numbers
+    precalculate_random_numbers(h_buffer, h_prngState);
+
+    // Copy the updated buffer and prngState to the device
+    cudaMemcpy(d_buffer, h_buffer, BUFFER_SIZE * sizeof(uintptr_t), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_prngState, h_prngState, 2 * sizeof(uint64_t), cudaMemcpyHostToDevice);
+``
     // Allocate the pond
     struct Cell *d_pond;
     cudaMalloc(&d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell));
     // ON CPU
     
-    // Seed and init the random number generator
-    uint64_t h_prngState[2] = {0, (uint64_t)rand()};
-    cudaMemcpy(d_prngState, h_prngState, 2 * sizeof(uint64_t), cudaMemcpyHostToDevice);
 
 
     struct statCounters *statCounters = (struct statCounters *)malloc(sizeof(struct statCounters));
