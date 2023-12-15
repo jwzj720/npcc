@@ -248,7 +248,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     uintptr_t clock = 0;
     uintptr_t outputBuf[POND_DEPTH_SYSWORDS];
     uintptr_t currentWord,wordPtr,shiftPtr,inst,tmp;
-    struct Cell *pptr,*tmpptr;
+    struct Cell *pptr, *tmpptr;
     uintptr_t ptr_wordPtr;
     uintptr_t ptr_shiftPtr;
     uintptr_t reg;
@@ -267,7 +267,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     int exitNow = 0;
     while (!exitNow) {
     clock++;
-    if (clock == 1000000)
+    if (clock == 10000000)
         {
             exitNow = 1;
         }
@@ -405,15 +405,16 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         if ((tmpptr->energy)) {
             accessAllowed(tmpptr,reg,0,1, &rand, buffer, in, prngState);
             if(rand) {
-            /* Log it if we're replacing a viable cell */
-            if (tmpptr->generation > 2)
-                ++statCounter->viableCellsReplaced;
-            tmpptr->ID = ++cellIdCounter;
-            tmpptr->parentID = pptr->ID;
-            tmpptr->lineage = pptr->lineage; /* Lineage is copied in offspring */
-            tmpptr->generation = pptr->generation + 1;
-            for(i=0;i<POND_DEPTH_SYSWORDS;++i)
-                tmpptr->genome[i] = outputBuf[i];
+                /* Log it if we're replacing a viable cell */
+                if (tmpptr->generation > 2)
+                    ++statCounter->viableCellsReplaced;
+                tmpptr->ID = ++cellIdCounter;
+                tmpptr->parentID = pptr->ID;
+                tmpptr->lineage = pptr->lineage; /* Lineage is copied in offspring */
+                tmpptr->generation = pptr->generation + 1;
+                
+                for(i=0;i<POND_DEPTH_SYSWORDS;++i)
+                    tmpptr->genome[i] = outputBuf[i];
             }
         }
     }
