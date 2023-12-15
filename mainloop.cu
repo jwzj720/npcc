@@ -266,7 +266,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     while (!exitNow) {
         clock++;
         //printf("clock: %lu\n", clock);
-        if (clock == 10000)
+        if (clock == 200000000)
         {
             exitNow = 1;
         }
@@ -493,7 +493,7 @@ int main() {
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
 
    // Call the kernel function
-    for (uint64_t n = 0; n < 10; n++){
+    for (uint64_t n = 0; n < 1; n++){
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter, d_accessAllowed1, d_accessAllowed2);
         cudaDeviceSynchronize(); 
         err = cudaGetLastError();
