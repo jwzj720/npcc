@@ -264,6 +264,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     int exitNow = 0;
     while (!exitNow) {
         clock++;
+        printf("clock: %lu\n", clock);
         if (clock == 1000000000)
         {
             exitNow = 1;
@@ -322,7 +323,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         /* Keep track of how many cells have been executed */
         statCounter->cellExecutions += 1.0;
         /* Core execution loop */
-        while ((!stop)) {
+        while ((pptr->energy)&&(!stop)) {
             /* Get the next instruction */
             inst = (currentWord >> shiftPtr) & 0xf;
             skip=0;
