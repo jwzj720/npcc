@@ -474,6 +474,7 @@ int main() {
     //for (uint64_t n = 0; n < 1000000; n++){
     while(h_clock <= 100000) {
         cudaMemcpy(&h_clock, clock, sizeof(int), cudaMemcpyDeviceToHost);
+        printf("Clock: %d\n", h_clock);
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, clock);
         cudaDeviceSynchronize();
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
