@@ -159,7 +159,7 @@ __device__ static inline void accessAllowed(struct Cell *const c2, const uintptr
     /* Access permission is more probable if they are more similar in sense 0,
      * and more probable if they are different in sense 1. Sense 0 is used for
      * "negative" interactions and sense 1 for "positive" ones. */
-    *ret = ((((random >= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)]) || !c2->parentID) & sense) | (((random <= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)]) || !c2->parentID) & ~sense));
+    ret = ((((random >= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)]) || !c2->parentID) & sense) | (((random <= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)]) || !c2->parentID) & ~sense));
 }
 
 __device__ static inline void getNeighbor(struct Cell *pond, const uintptr_t x, const uintptr_t y, const uintptr_t dir, struct Cell *ret)
@@ -481,7 +481,7 @@ int main() {
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
 
    // Call the kernel function
-    for (uint64_t n = 0; n < 1000; n++){
+    for (uint64_t n = 0; n < 10; n++){
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter);
         cudaDeviceSynchronize(); 
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
