@@ -413,7 +413,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         }
     }
     }
-    if (((threadNo == 0)&&(!(clock % REPORT_FREQUENCY))) || clock == 100000)
+    if ((!(clock % REPORT_FREQUENCY)) || clock == 100000)
     {
         exitNow = 1;
     }
