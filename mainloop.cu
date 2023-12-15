@@ -241,11 +241,10 @@ static void doReport(struct Cell *pond, struct statCounters *statCounter, const 
 		((uint8_t *)&statCounter)[x] = (uint8_t)0;
 }
 
-__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter) 
+__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter, int *clock) 
 {
     //const uintptr_t threadNo = (uintptr_t)targ;
     uintptr_t x,y,i;
-    uintptr_t clock = 0;
     uintptr_t outputBuf[POND_DEPTH_SYSWORDS];
     uintptr_t currentWord,wordPtr,shiftPtr,inst,tmp;
     struct Cell *pptr,*tmpptr;
@@ -266,11 +265,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     uintptr_t rand;
     int exitNow = 0;
     while (!exitNow) {
-    clock++;
-    if (clock == 1000000)
-        {
-            exitNow = 1;
-        }
+        clock++;
     if (!(clock % INFLOW_FREQUENCY)) {
         getRandomRollback(1, &x, buffer, in, prngState);
         x = x % POND_SIZE_X;
@@ -418,6 +413,10 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         }
     }
     }
+    if (((threadNo == 0)&&(!(clock % REPORT_FREQUENCY))) || clock == 100000)
+    {
+        exitNow = 1;
+    }
 }
 
 __global__ void initializePond(struct Cell *pond) {
@@ -439,12 +438,15 @@ int main() {
     int *d_in;
     uintptr_t *d_last_random_number;
     uint64_t *d_prngState;
-
+    int *clock;
+    cudaMalloc(&clock, sizeof(int));
     // Allocate memory on the GPU for each variable
     cudaMalloc(&d_buffer, BUFFER_SIZE * sizeof(uintptr_t));
     cudaMalloc(&d_in, sizeof(int));
     cudaMalloc(&d_last_random_number, sizeof(uintptr_t));
     cudaMalloc(&d_prngState, 2 * sizeof(uint64_t));
+    cudaMemset(clock, 0, sizeof(int));
+    
 
     // Allocate the pond
     struct Cell *d_pond;
@@ -464,22 +466,23 @@ int main() {
  
     cudaMalloc(&d_statCounters, sizeof(d_statCounters));
 
-
     // Clear the pond and initialize all genomes
     // This can be done in a kernel
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
-
+    int h_clock;
    // Call the kernel function
-    for (uint64_t n = 0; n < 1000000; n++){
-        for (int m = 0 ; m < REPORT_FREQUENCY; m++){
-            run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters);
-            cudaDeviceSynchronize();
-            
-        }
+    //for (uint64_t n = 0; n < 1000000; n++){
+    while(h_clock <= 100000)
+        cudaMemcpy(&h_clock, clock, sizeof(int), cudaMemcpyDeviceToHost);
+        run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, clock);
+        cudaDeviceSynchronize();
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
         doReport(h_pond, statCounters, n);
     }
+        
+    
+        
     
 
     // Free the memory on the GPU
