@@ -461,9 +461,6 @@ int main() {
     struct Cell *d_pond;
     cudaMalloc(&d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell));
     // ON CPU
-    
-
-
     struct statCounters *statCounters = (struct statCounters *)malloc(sizeof(struct statCounters));
     struct Cell *h_pond = (struct Cell *)malloc(POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell));
     // Reset per-report stat counters
@@ -479,11 +476,9 @@ int main() {
 
    // Call the kernel function
     for (uint64_t n = 0; n < 10; n++){
-        for (int m = 0 ; m < REPORT_FREQUENCY; m++){
-            run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters);
-            cudaDeviceSynchronize();
-            
-        }
+        
+        run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters);
+        cudaDeviceSynchronize(); 
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
         doReport(h_pond, statCounters, n);
