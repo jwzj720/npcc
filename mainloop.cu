@@ -475,7 +475,12 @@ int main() {
     struct statCounters *d_statCounters;
  
     cudaMalloc(&d_statCounters, sizeof(d_statCounters));
-
+    
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        printf("CUDA error: %s\n", cudaGetErrorString(err));
+        return -1;
+    }
 
     // Clear the pond and initialize all genomes
     // This can be done in a kernel
@@ -485,6 +490,11 @@ int main() {
     for (uint64_t n = 0; n < 1; n++){
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter);
         cudaDeviceSynchronize(); 
+        err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            printf("CUDA error: %s\n", cudaGetErrorString(err));
+            return -1;
+        }
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
         doReport(h_pond, statCounters, n);
