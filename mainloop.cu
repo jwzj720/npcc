@@ -322,7 +322,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         /* Keep track of how many cells have been executed */
         statCounter->cellExecutions += 1.0;
         /* Core execution loop */
-        while ((pptr->energy)&&(!stop)) {
+        while ((!stop)) {
             /* Get the next instruction */
             inst = (currentWord >> shiftPtr) & 0xf;
             skip=0;
