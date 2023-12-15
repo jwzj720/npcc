@@ -81,7 +81,7 @@
  * Structure for a cell in the pond
  */
 struct __align__(8) Cell
-        {
+    {
 	/* Globally unique cell ID */
 	uint64_t ID;
 	
@@ -163,7 +163,7 @@ __device__ static inline void accessAllowed(struct Cell *const c2, const uintptr
     //*ret = ((((random >= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)]) || !c2->parentID) & sense) | (((random <= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)]) || !c2->parentID) & ~sense));
 }
 
-__device__ static inline void getNeighbor(struct Cell *pond, const uintptr_t x, const uintptr_t y, const uintptr_t dir, struct Cell *ret)
+__device__ static inline void getNeighbor(struct Cell *pond, const uintptr_t x, const uintptr_t y, const uintptr_t dir, struct Cell **ret)
 {
     /* Define the changes in the x and y coordinates for each direction */
     int dx[] = {-1, 1, 0, 0}; // Changes in x for N_LEFT, N_RIGHT, N_UP, N_DOWN
@@ -173,7 +173,7 @@ __device__ static inline void getNeighbor(struct Cell *pond, const uintptr_t x, 
     uintptr_t newX = (x + dx[dir] + POND_SIZE_X) % POND_SIZE_X;
     uintptr_t newY = (y + dy[dir] + POND_SIZE_Y) % POND_SIZE_Y;
 
-    ret = &pond[newY * POND_SIZE_X + newX];
+    *ret = &pond[newY * POND_SIZE_X + newX];
 }
 
 static void doReport(struct Cell *pond, struct statCounters *statCounter, const uint64_t clock)
