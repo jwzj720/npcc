@@ -156,7 +156,7 @@ __device__ static inline void accessAllowed(struct Cell *const c2, const uintptr
     uintptr_t random = 0; 
     getRandomRollback(rollback, &random, buffer, in, prngState);
     random = (uintptr_t)(random & 0xf);
-    *ret = sense ? (((random & 0xf) >= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)])||(!c2->parentID)) : (((random & 0xf) <= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)])||(!c2->parentID))
+    *ret = sense ? (((random & 0xf) >= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)])||(!c2->parentID)) : (((random & 0xf) <= BITS_IN_FOURBIT_WORD[(c2->genome[0] & 0xf) ^ (c1guess & 0xf)])||(!c2->parentID));
     /* Access permission is more probable if they are more similar in sense 0,
      * and more probable if they are different in sense 1. Sense 0 is used for
      * "negative" interactions and sense 1 for "positive" ones. */
