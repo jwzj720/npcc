@@ -264,7 +264,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     int exitNow = 0;
     while (!exitNow) {
         clock++;
-        if (clock == 10000000)
+        if (clock == 1000000000)
         {
             exitNow = 1;
         }
@@ -481,7 +481,7 @@ int main() {
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
 
    // Call the kernel function
-    for (uint64_t n = 0; n < 10; n++){
+    for (uint64_t n = 0; n < 1; n++){
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter);
         cudaDeviceSynchronize(); 
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
