@@ -469,12 +469,12 @@ int main() {
     // Clear the pond and initialize all genomes
     // This can be done in a kernel
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
-    int h_clock = 0;
+    int *h_clock = 0;
    // Call the kernel function
     //for (uint64_t n = 0; n < 1000000; n++){
-    while(h_clock <= 100000) {
-        cudaMemcpy(&h_clock, clock, sizeof(int), cudaMemcpyDeviceToHost);
-        printf("Clock: %d\n", h_clock);
+    while(*h_clock <= 100000) {
+        cudaMemcpy(h_clock, clock, sizeof(int), cudaMemcpyDeviceToHost);
+        printf("Clock: %d\n", *h_clock);
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, clock);
         cudaDeviceSynchronize();
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
