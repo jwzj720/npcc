@@ -366,7 +366,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
                 loopStack_shiftPtr[loopStackPtr]=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xd || inst == 0xe || inst == 0xf)*(loopStack_shiftPtr[loopStackPtr])+((inst == 0x9) * (loopStack_shiftPtr[loopStackPtr]*(!reg||(loopStackPtr>=POND_DEPTH))+(shiftPtr*(reg&&(loopStackPtr<POND_DEPTH)))));
                 loopStackPtr=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0xb || inst == 0xc || inst == 0xd || inst == 0xe || inst == 0xf)*(loopStackPtr)+((inst == 0x9)*(loopStackPtr + (reg&&(loopStackPtr<POND_DEPTH))))+((inst == 0xa)*(loopStackPtr-!!loopStackPtr));
                 falseLoopDepth=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xd || inst == 0xe || inst == 0xf)*(falseLoopDepth)+((inst == 0x9)*(falseLoopDepth + (!reg)));
-                getNeighbor(pond, x,y,facing, tmpptr);
+                getNeighbor(pond, x,y,facing, &tmpptr);
                 access_neg_used = 0;
                 access_pos_used = 0;
                 access_pos_used = (inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xd || inst == 0xf)*(access_pos_used)+((inst == 0xe)*(1));
@@ -399,7 +399,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
             * would never be executed and then would be replaced with random
             * junk eventually. See the seeding code in the main loop above. */
         if ((outputBuf[0] & 0xff) != 0xff) {
-            getNeighbor(pond,x,y,facing, tmpptr);
+            getNeighbor(pond,x,y,facing, &tmpptr);
             //printf("%lu\n", tmpptr->energy);
             if ((tmpptr->energy)) {
                 //int t;
