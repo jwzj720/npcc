@@ -469,7 +469,7 @@ int main() {
     // Clear the pond and initialize all genomes
     // This can be done in a kernel
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
-    int h_clock;
+    int h_clock = 0;
    // Call the kernel function
     //for (uint64_t n = 0; n < 1000000; n++){
     while(h_clock <= 100000) {
