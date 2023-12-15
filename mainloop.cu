@@ -371,8 +371,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
                 access_pos_used = 0;
                 access_pos_used = (inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xd || inst == 0xf)*(access_pos_used)+((inst == 0xe)*(1));
                 access_neg_used = (inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xe|| inst == 0xf)*(access_neg_used)+((inst == 0xd)*(1));
-                accessAllowed(tmpptr,reg,0, access_neg_used, *accessNeg, buffer, in, prngState);
-                accessAllowed(tmpptr,reg,1, access_pos_used, *accessPos, buffer, in, prngState);
+                accessAllowed(tmpptr,reg,0, access_neg_used, accessNeg, buffer, in, prngState);
+                accessAllowed(tmpptr,reg,1, access_pos_used, accessPos, buffer, in, prngState);
                 statCounter->viableCellsKilled=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xf)*(statCounter->viableCellsKilled)+((inst == 0xd)*(statCounter->viableCellsKilled+(*accessNeg)*(tmpptr->generation>2)))+((inst == 0xe)*(statCounter->viableCellsKilled+(*accessPos)*(tmpptr->generation>2)));
                 tmpptr->genome[0]=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xe || inst == 0xf)*(tmpptr->genome[0])+((inst == 0xd)*(tmpptr->genome[0]*!(*accessNeg)+(*accessNeg)*~((uintptr_t)0)));
                 tmpptr->genome[1]=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xe || inst == 0xf)*(tmpptr->genome[1])+((inst == 0xd)*(tmpptr->genome[0]*!(*accessNeg)+(*accessNeg)*~((uintptr_t)0)));
@@ -403,8 +403,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
             //printf("%lu\n", tmpptr->energy);
             if ((tmpptr->energy)) {
                 //int t;
-                accessAllowed(tmpptr,reg,0,1, *accessPos, buffer, in, prngState);
-                if(d_accessAllowed2) {
+                accessAllowed(tmpptr,reg,0,1, accessPos, buffer, in, prngState);
+                if(accessPos) {
                     /* Log it if we're replacing a viable cell */
                     if (tmpptr->generation > 2)
                         ++statCounter->viableCellsReplaced;
