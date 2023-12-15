@@ -456,7 +456,7 @@ int main() {
     // Copy the updated buffer and prngState to the device
     cudaMemcpy(d_buffer, h_buffer, BUFFER_SIZE * sizeof(uintptr_t), cudaMemcpyHostToDevice);
     cudaMemcpy(d_prngState, h_prngState, 2 * sizeof(uint64_t), cudaMemcpyHostToDevice);
-``
+
     // Allocate the pond
     struct Cell *d_pond;
     cudaMalloc(&d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell));
