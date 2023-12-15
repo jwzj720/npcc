@@ -470,7 +470,7 @@ int main() {
     initializePond<<<POND_SIZE_X, POND_SIZE_Y>>>(d_pond);
 
    // Call the kernel function
-    for (uint64_t n = 0; n < 1000000; n++){
+    for (uint64_t n = 0; n < 1; n++){
         for (int m = 0 ; m < REPORT_FREQUENCY; m++){
             run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters);
             cudaDeviceSynchronize();
