@@ -472,7 +472,7 @@ int main() {
     int h_clock;
    // Call the kernel function
     //for (uint64_t n = 0; n < 1000000; n++){
-    while(h_clock <= 100000)
+    while(h_clock <= 100000) {
         cudaMemcpy(&h_clock, clock, sizeof(int), cudaMemcpyDeviceToHost);
         run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, clock);
         cudaDeviceSynchronize();
@@ -480,10 +480,6 @@ int main() {
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
         doReport(h_pond, statCounters, n);
     }
-        
-    
-        
-    
 
     // Free the memory on the GPU
     cudaFree(d_buffer);
