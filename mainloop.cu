@@ -478,7 +478,7 @@ int main() {
         cudaDeviceSynchronize();
         cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
-        doReport(h_pond, statCounters, n);
+        doReport(h_pond, statCounters, h_clock);
     }
 
     // Free the memory on the GPU
