@@ -446,10 +446,6 @@ int main() {
     // Set its value to 0
     cudaMemset(cellIdCounter, 0, sizeof(uint64_t));
 
-    // Copy the value from the host to the device
-    uint64_t h_cellIdCounter = 0;
-    cudaMemcpy(cellIdCounter, &h_cellIdCounter, sizeof(uint64_t), cudaMemcpyHostToDevice);
-
     // Allocate memory on the GPU for each variable
     cudaMalloc(&d_buffer, BUFFER_SIZE * sizeof(uintptr_t));
     cudaMalloc(&d_in, sizeof(int));
