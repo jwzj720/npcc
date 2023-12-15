@@ -239,7 +239,7 @@ static void doReport(struct Cell *pond, struct statCounters *statCounter, const 
 		((uint8_t *)&statCounter)[x] = (uint8_t)0;
 }
 
-__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter, uint64_t *cellIdCounter) 
+__global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64_t *prngState, struct statCounters *statCounter, uint64_t *cellIdCounter, int *accessAllowed1, int *accessAllowed2) 
 {
     //const uintptr_t threadNo = (uintptr_t)targ;
     uintptr_t x,y,i;
@@ -259,8 +259,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     int skip;
     int access_neg_used;
     int access_pos_used;
-    uintptr_t access_neg;
-    uintptr_t access_pos;
+    //uintptr_t access_neg;
+    //uintptr_t access_pos;
     uintptr_t rand;
     int exitNow = 0;
     while (!exitNow) {
@@ -312,8 +312,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
         skip=0;
         access_neg_used = 0;
         access_pos_used = 0;
-        access_neg = 0;
-        access_pos = 0;
+        //access_neg = 0;
+        //access_pos = 0;
         /* We use a currentWord buffer to hold the word we're
             * currently working on.  This speeds things up a bit
             * since it eliminates a pointer dereference in the
@@ -371,10 +371,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
                 access_pos_used = 0;
                 access_pos_used = (inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xd || inst == 0xf)*(access_pos_used)+((inst == 0xe)*(1));
                 access_neg_used = (inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xe|| inst == 0xf)*(access_neg_used)+((inst == 0xd)*(1));
-                int access_neg_1 = 0;
-                int access_pos_1 = 0;
-                accessAllowed(tmpptr,reg,0, access_neg_used, &access_neg_1, buffer, in, prngState);
-                accessAllowed(tmpptr,reg,1, access_pos_used, &access_pos_1, buffer, in, prngState);
+                accessAllowed(tmpptr,reg,0, access_neg_used, accessAllowed1, buffer, in, prngState);
+                accessAllowed(tmpptr,reg,1, access_pos_used, accessAllowed2, buffer, in, prngState);
                 statCounter->viableCellsKilled=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xf)*(statCounter->viableCellsKilled)+((inst == 0xd)*(statCounter->viableCellsKilled+(access_neg)*(tmpptr->generation>2)))+((inst == 0xe)*(statCounter->viableCellsKilled+(access_pos)*(tmpptr->generation>2)));
                 tmpptr->genome[0]=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xe || inst == 0xf)*(tmpptr->genome[0])+((inst == 0xd)*(tmpptr->genome[0]*!(access_neg)+(access_neg)*~((uintptr_t)0)));
                 tmpptr->genome[1]=(inst == 0x0 || inst == 0x1 || inst == 0x2 || inst == 0x3 || inst == 0x4 || inst == 0x5 || inst == 0x6 || inst == 0x7 || inst == 0x8 || inst == 0x9 || inst == 0xa || inst == 0xb || inst == 0xc || inst == 0xe || inst == 0xf)*(tmpptr->genome[1])+((inst == 0xd)*(tmpptr->genome[0]*!(access_neg)+(access_neg)*~((uintptr_t)0)));
@@ -404,9 +402,9 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
             getNeighbor(pond,x,y,facing, tmpptr);
             //printf("%lu\n", tmpptr->energy);
             if ((tmpptr->energy)) {
-                int t = 0;
-                accessAllowed(tmpptr,reg,0,1, &t, buffer, in, prngState);
-                if(rand) {
+                //int t;
+                accessAllowed(tmpptr,reg,0,1, d_accessAllowed2, buffer, in, prngState);
+                if(d_accessAllowed2) {
                     /* Log it if we're replacing a viable cell */
                     if (tmpptr->generation > 2)
                         ++statCounter->viableCellsReplaced;
@@ -442,9 +440,13 @@ int main() {
     int *d_in;
     uintptr_t *d_last_random_number;
     uint64_t *d_prngState;
+    int *d_accessAllowed1;
+    int *d_accessAllowed2;
     /* This is used to generate unique cell IDs */
     uint64_t *cellIdCounter;
 
+    cudaMalloc(&d_accessAllowed1, sizeof(int));
+    cudaMalloc(&d_accessAllowed2, sizeof(int));
     // Allocate memory on the GPU for cellIdCounter
     cudaMalloc(&cellIdCounter, sizeof(uint64_t));
 
@@ -492,7 +494,7 @@ int main() {
 
    // Call the kernel function
     for (uint64_t n = 0; n < 1; n++){
-        run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter);
+        run<<<1, 1>>>(d_pond, d_buffer, d_in, d_prngState, d_statCounters, cellIdCounter, d_accessAllowed1, d_accessAllowed2);
         cudaDeviceSynchronize(); 
         err = cudaGetLastError();
         if (err != cudaSuccess) {
@@ -514,6 +516,7 @@ int main() {
     cudaFree(d_statCounters);
     free(statCounters);
     free(h_pond);
-
+    free(d_accessAllowed1);
+    free(d_accessAllowed2);
     return 0;
 }
