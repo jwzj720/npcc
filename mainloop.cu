@@ -404,7 +404,8 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
             getNeighbor(pond,x,y,facing, tmpptr);
             //printf("%lu\n", tmpptr->energy);
             if ((tmpptr->energy)) {
-                accessAllowed(tmpptr,reg,0,1, &rand, buffer, in, prngState);
+                int t = 0;
+                accessAllowed(tmpptr,reg,0,1, &t, buffer, in, prngState);
                 if(rand) {
                     /* Log it if we're replacing a viable cell */
                     if (tmpptr->generation > 2)
