@@ -1,4 +1,5 @@
 #include<cuda.h>
+#include <stdio.h>
 
 __device__ void haha(uintptr_t *ret)
 {
