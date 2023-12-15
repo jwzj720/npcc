@@ -80,7 +80,7 @@
 /**
  * Structure for a cell in the pond
  */
-struct Cell
+struct __align__(8) Cell
         {
 	/* Globally unique cell ID */
 	uint64_t ID;
