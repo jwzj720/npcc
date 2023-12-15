@@ -267,7 +267,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
     int exitNow = 0;
     while (!exitNow) {
         clock++;
-        if (clock == 1000000000)
+        if (clock == 200000000)
             {
                 exitNow = 1;
             }
