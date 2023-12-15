@@ -438,7 +438,7 @@ int main() {
     int *d_in;
     uintptr_t *d_last_random_number;
     uint64_t *d_prngState;
-    int *clock;
+    int clock;
     cudaMalloc(&clock, sizeof(int));
     // Allocate memory on the GPU for each variable
     cudaMalloc(&d_buffer, BUFFER_SIZE * sizeof(uintptr_t));
