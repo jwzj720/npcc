@@ -275,7 +275,7 @@ __global__ static void run(struct Cell *pond, uintptr_t *buffer, int *in, uint64
             x = x % POND_SIZE_X;
             getRandomRollback(1, &y, buffer, in, prngState);
             y = y % POND_SIZE_Y;
-            pptr = &pond[y * POND_SIZE_X + x];
+            *pptr = &pond[y * POND_SIZE_X + x];
             pptr->ID = *cellIdCounter;
             pptr->parentID = 0;
             pptr->lineage = *cellIdCounter;
