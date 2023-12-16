@@ -103,7 +103,7 @@ struct __align__(8) Cell
 	uintptr_t genome[POND_DEPTH_SYSWORDS];
 };
 
-struct statCounters {
+struct __align__(8) statCounters {
 	/* Counts for the number of times each instruction was
 	 * executed since the last report. */
 	double instructionExecutions[16];
@@ -501,7 +501,7 @@ int main() {
             printf("CUDA error: %s\n", cudaGetErrorString(err));
             return -1;
         }
-        cudaMemcpy(statCounters, d_statCounters, sizeof(struct statCounters), cudaMemcpyDeviceToHost);  
+        cudaMemcpy(statCounters, d_statCounters, sizeof(d_statCounters), cudaMemcpyDeviceToHost);  
         cudaMemcpy(h_pond, d_pond, POND_SIZE_X * POND_SIZE_Y * sizeof(struct Cell), cudaMemcpyDeviceToHost);
         doReport(h_pond, statCounters, n);
     }
